@@ -10,6 +10,10 @@ if [ -f "DeodexJarList.txt" ]; then
 	rm DeodexJarList.txt
 fi
 
+if [ -f "DeodexApkList.txt" ]; then
+	rm DeodexApkList.txt
+fi
+
 if [ -f "classes.dex" ]; then
 	rm classes.dex
 fi
@@ -56,5 +60,35 @@ rm -rf $filename.odex
 
 done
 
+#deodex apk files
+(ls *.apk) > $WORKDIR/DeodexApkList.txt;
+cat $WORKDIR/DeodexApkList.txt | while read line;
+do
+#echo $line
+filename=${line%.*}
+if [ ! -f "$filename.odex" ]; then
+	echo "warning:hadn't found $filename.odex!"
+fi
+
+if [ -f "$filename.odex" ]; then
+#echo $filename
+    if [ -d $filename ]; then
+	rm -rf $filename
+    fi
+    echo "Deodex $filename ..."
+    java -jar baksmali.jar -a 23 -x -c boot.oat -d . -b -s $filename.odex -o $filename
+    java -jar smali.jar -a 23 -j 1 -o classes.dex $filename
+    zip -m $filename.apk ./classes.dex 1> /dev/null 2> /dev/null
+fi
+mv $filename.apk $output/$filename.apk
+
+#clean files
+rm -rf $filename
+rm -rf classes.dex
+rm -rf $filename.odex
+
+done
+
 rm -rf DeodexJarList.txt
-echo "Done."
+rm -rf DeodexApkList.txt
+echo "All Done."
