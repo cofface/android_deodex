@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 # Deodex for android 6.0
-# Author:cofface@foxmail.com
 
 WORKDIR=$(pwd)
 output=$WORKDIR/output
